@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Iowa Agrivoltaics Dual-Revenue Estimator</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Hanken+Grotesk:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div class="wrap">
+<header class="top">
+  <span class="eyebrow">Iowa State Extension 2026 rents and budgets · Solargis PVOUT</span>
+  <h1>Iowa Agrivoltaics Dual-Revenue Estimator</h1>
+  <p>Pick a county, pick what you would grow under the panels, and see what each acre earns from farming alone, a solar lease alone, and both together. The layout generator sets panel height, tilt and row spacing so enough sunlight still reaches the crop.</p>
+  <div class="flow" aria-label="Workflow"><span class="chip">County</span><span class="arrow">→</span><span class="chip">ISU rent, yield, costs</span><span class="arrow">+</span><span class="chip">Solargis PVOUT, OPTA</span><span class="arrow">→</span><span class="chip">Light model and layout</span><span class="arrow">→</span><span class="chip">Dual-revenue ledger</span></div>
+</header>
+
+<div class="layout">
+<main class="steps">
+
+<section class="step" id="s1">
+  <div class="step-head"><span class="step-n">STEP 1</span><h2>Choose your county</h2></div>
+  <p class="hint">Each tile is one county, grouped by the nine ISU crop-reporting districts and shaded by 2026 average cash rent. ISU reports Allamakee with Winneshiek, Decatur with Ringgold, and Mahaska with Wapello as single figures (marked †).</p>
+  <div class="districts" id="districts"></div>
+  <div class="legend"><span>$173</span><i></i><span>$332 per acre cash rent</span></div>
+  <div class="bench" id="bench"></div>
+</section>
+
+<section class="step" id="s2">
+  <div class="step-head"><span class="step-n">STEP 2</span><h2>Choose a system and crop</h2></div>
+  <div class="seg" id="systems"></div>
+  <div class="crops" id="crops" role="group" aria-label="Crop"></div>
+  <p class="hint" id="cropnote"></p>
+</section>
+
+<section class="step" id="s3">
+  <div class="step-head"><span class="step-n">STEP 3</span><h2>Generated array layout</h2></div>
+  <p class="hint">The generator tests panel height, tilt and row spacing, models sunlight reaching the ground from May through September, and keeps the layout with the most solar capacity that still meets your crop and machinery limits. Move any slider to try your own.</p>
+  <div class="ctrls">
+    <div class="ctrl"><label for="target">Keep at least this share of normal yield <b id="targetV"></b></label><input type="range" id="target" min="50" max="100" step="1"></div>
+    <div class="ctrl"><label for="hSl">Low-edge height <b id="hV"></b></label><input type="range" id="hSl" min="0.8" max="5" step="0.1"></div>
+    <div class="ctrl"><label for="tSl">Panel tilt <b id="tV"></b></label><input type="range" id="tSl" min="5" max="45" step="1"></div>
+    <div class="ctrl"><label for="pSl">Row spacing, center to center <b id="pV"></b></label><input type="range" id="pSl" min="6" max="40" step="0.5"></div>
+  </div>
+  <div class="row"><button class="btn" id="gen" type="button">Generate best layout</button><button class="btn ghost" id="useOpta" type="button">Use county optimal tilt</button><span class="small" id="genNote"></span></div>
+  <div class="metrics" id="metrics"></div>
+  <div class="checks" id="checks"></div>
+  <div class="two">
+    <div class="viz"><h3>Side view, south on the left</h3><div id="xsec"></div></div>
+    <div class="viz"><h3>Ground shading, seen from above</h3><canvas id="heat" width="640" height="320" aria-label="Heatmap of ground light between panel rows"></canvas>
+      <div class="ramp"><span>0%</span><i></i><span>100% of open-field light</span></div>
+      <p class="small" id="heatNote"></p></div>
+  </div>
+  <details><summary>Table view of ground light</summary><div class="tblwrap"><table id="ptable"></table></div></details>
+</section>
+
+<section class="step" id="s4">
+  <div class="step-head"><span class="step-n">STEP 4</span><h2>Inputs behind the numbers</h2></div>
+  <p class="hint">Every value is editable. The Source column says which figures come from Iowa State and which are placeholders for you to replace.</p>
+  <div class="tblwrap"><table id="assump"></table></div>
+</section>
+</main>
+
+<aside class="rail" aria-label="Per-acre results">
+  <div class="ledger">
+    <div><span class="eyebrow">Per acre, per year</span><h2 id="ledTitle" style="margin-top:4px"></h2></div>
+    <div class="led farm"><div class="t">Farm it as today</div><div class="n" id="nFarm"></div><div class="bar"><i id="bFarm"></i></div></div>
+    <div class="led solar"><div class="t">Solar lease only</div><div class="n" id="nSolar"></div><div class="bar"><i id="bSolar"></i></div><div class="small" id="leaseMult"></div></div>
+    <div class="led dual"><div class="t">Solar lease plus crop under the panels</div><div class="n" id="nDual"></div><div class="bar"><i id="bDual"></i></div><div class="delta" id="dDual"></div></div>
+    <div class="ctrl"><label for="lease">Solar lease rate, $ per acre <b id="leaseV"></b></label><input type="range" id="lease" min="300" max="2000" step="25"></div>
+    <div class="ctrl"><label for="acres">Acres <b id="acresV"></b></label><input type="range" id="acres" min="10" max="500" step="10"></div>
+    <div class="formula" id="formula"></div>
+    <div class="small" id="totals"></div>
+  </div>
+</aside>
+</div>
+
+<footer>
+  <p><b>Solar data.</b> PVOUT: Global Solar Atlas, © 2019 Solargis, licensed CC BY 4.0. The Global Solar Atlas is operated by Solargis s.r.o. on behalf of the World Bank Group with funding from ESMAP. <a href="https://globalsolaratlas.info/" target="_blank" rel="noopener">globalsolaratlas.info</a> · <a href="https://solargis.com/" target="_blank" rel="noopener">solargis.com</a>. County points: US Census Bureau 2026 Gazetteer interior points.</p>
+  <p><b>How to read this.</b> Figures are returns over variable costs per acre, before land, machinery ownership and labor. Farm-only and dual figures use one formula: crop yield × price, minus input costs. Under panels, yield is scaled by the share of sunlight the crop receives, and input costs shrink by a chosen share of the lost yield. This is a planning estimate, not a lease offer or financial advice.</p>
+  <div class="contacts">
+    <div><b>ISU Ag Decision Maker</b><br>agdm@iastate.edu · (515) 294-6685<br>Department of Economics and ISU Extension and Outreach<br><a href="https://www.extension.iastate.edu/agdm/wholefarm/html/c2-10.html" target="_blank" rel="noopener">Cash Rental Rates (C2-10)</a> · <a href="https://www.extension.iastate.edu/agdm/crops/html/a1-20.html" target="_blank" rel="noopener">Crop Production Costs (A1-20)</a></div>
+    <div><b>Center for Agricultural Law and Taxation</b><br>(515) 294-5217 · long-term lease and contract questions<br><a href="https://www.calt.iastate.edu/" target="_blank" rel="noopener">calt.iastate.edu</a></div>
+  </div>
+</footer>
+</div>
+<div id="tip"></div>
+
+<script src="app.js"></script>
+</body></html>
