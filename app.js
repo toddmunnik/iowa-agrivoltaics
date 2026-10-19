@@ -169,11 +169,11 @@ function renderBench(){
   <div class="kv"><span>Soybean yield, 5-year avg</span><b>${c.soy} bu/ac</b></div>
   <div class="kv"><span>${D.n} pasture rent</span><b>${money(D.pasture)}/ac</b></div>
   <div class="kv"><span>Budget costs: corn, soybeans</span><b>$484, $290/ac</b></div></div>
-  <div class="src"><h3>Solargis · ${c.name} County <span class="badge ok">PVOUT data</span></h3>
-  <div class="kv"><span>PVOUT at county center</span><b>${num(pvoutOf(c),0)} kWh/kWp/yr</b></div>
-  <div class="kv"><span>Optimal tilt (OPTA), estimate</span><b>${optaOf(c)}°</b></div>
-  <div class="kv"><span>Diffuse share (DIF/GHI), estimate</span><b>${Math.round(S.diff*100)}%</b></div>
-  <p class="small">PVOUT is the Solargis long-term average at the county's center point. Tilt and diffuse share are estimates, since those layers are not in the free download.</p></div>`;
+  <div class="src"><h3>Sunlight at ${c.name} County's center <span class="badge ok">Measured</span></h3>
+  <div class="kv"><span>Sun power: electricity a year per kW of panels</span><b>${num(pvoutOf(c),0)} kWh</b></div>
+  <div class="kv"><span>Best panel angle, estimate</span><b>${optaOf(c)}°</b></div>
+  <div class="kv"><span>Hazy-sky light, estimate</span><b>${Math.round(S.diff*100)}%</b></div>
+  <p class="small">Sun power is the long-term average for a typical fixed-tilt panel at the county's center point. Hazy-sky light is the share of sunlight that arrives scattered by clouds and haze, which still reaches crops under panels. The best angle and the hazy-sky share are estimates.</p></div>`;
 }
 /* ---------- UI: system and crop ---------- */
 function renderSystems(){
@@ -197,8 +197,8 @@ function renderMetrics(){
  $('metrics').innerHTML=
   `<div class="m"><span class="v">${num(M.f*100)}%</span><span class="l">Average ground light</span></div>
    <div class="m"><span class="v">${num(M.R*100)}%</span><span class="l">Crop yield kept</span></div>
-   <div class="m"><span class="v">${num(M.kw)}</span><span class="l">kWp of panels per acre</span></div>
-   <div class="m"><span class="v">${num(M.mwh,0)}</span><span class="l">MWh per acre per year</span></div>`;
+   <div class="m"><span class="v">${num(M.kw)}</span><span class="l">kW of panels per acre</span></div>
+   <div class="m"><span class="v">${num(M.mwh,0)}</span><span class="l">Electricity made per acre, MWh a year</span></div>`;
  const need=c.machW+1,lane=M.alley>=need,can=S.h>=c.minLow,under=S.h>=c.machH,hit=M.R>=S.target/100-1e-9;
  const row=(cls,tag,txt)=>`<div class="check ${cls}"><i>${tag}</i><span>${txt}</span></div>`;
  $('checks').innerHTML=
@@ -291,9 +291,9 @@ function buildAssump(){
  <tr><td>Price, ${c.pU}</td><td>${f('aP',+val('price').toFixed(2),'any')}</td><td>${c.sP}</td></tr>
  <tr><td>Input costs, $/ac</td><td>${f('aC',val('cost'),'any')}</td><td>${c.sC}</td></tr>
  <tr><td>Light needed for full yield, % of open field</td><td>${f('aS',Math.round(val('sat')*100),1)}</td><td>Placeholder light response, calibrate with trial data</td></tr>
- <tr><td>Diffuse share of light, %</td><td>${f('aD',Math.round(S.diff*100),1)}</td><td>Placeholder until Solargis DIF/GHI is connected</td></tr>
+ <tr><td>Hazy-sky share of light, %</td><td>${f('aD',Math.round(S.diff*100),1)}</td><td>Estimate. The free sunlight data does not include it</td></tr>
  <tr><td>Input savings on lost yield, %</td><td>${f('aH',Math.round(S.share*100),1)}</td><td>Set to match your Story County example ($484 to about $411)</td></tr>
- <tr><td>Panel width 4.6 m, 21% modules, 85% land use</td><td colspan="2">Fixed assumptions behind the kWp per acre figure</td></tr>`;
+ <tr><td>Panel width 4.6 m, 21% modules, 85% land use</td><td colspan="2">Fixed assumptions behind the kW of panels per acre figure</td></tr>`;
  const bind=(id,fn,again)=>$(id).addEventListener('input',e=>{const v=parseFloat(e.target.value);if(!isFinite(v))return;fn(v);again?runAuto():render();});
  const ov=()=>(S.ov[S.crop]=S.ov[S.crop]||{});
  bind('aY',v=>ov().yield=v);bind('aP',v=>ov().price=v);bind('aC',v=>ov().cost=v);
