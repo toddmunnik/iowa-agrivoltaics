@@ -173,7 +173,7 @@ function renderBench(){
   <div class="kv"><span>Sun power: electricity a year per kW of panels</span><b>${num(pvoutOf(c),0)} kWh</b></div>
   <div class="kv"><span>Best panel angle, estimate</span><b>${optaOf(c)}°</b></div>
   <div class="kv"><span>Hazy-sky light, estimate</span><b>${Math.round(S.diff*100)}%</b></div>
-  <p class="small">Sun power is the long-term average for a typical fixed-tilt panel at the county's center point. Hazy-sky light is the share of sunlight that arrives scattered by clouds and haze, which still reaches crops under panels. The best angle and the hazy-sky share are estimates because that data is not in the free download.</p></div>`;
+  <p class="small">Sun power is the long-term average for a typical fixed-tilt panel at the county's center point. Hazy-sky light is the share of sunlight that arrives scattered by clouds and haze, which still reaches crops under panels. The best angle and the hazy-sky share are estimates.</p></div>`;
 }
 /* ---------- UI: system and crop ---------- */
 function renderSystems(){
